@@ -1,5 +1,5 @@
 import random
-
+from typing import List
 
 class Card():
     def __init__(self, rank, suit) -> None:
@@ -49,14 +49,14 @@ class Player():
         else:
             self.bet = None
 
-    # def __str__(self, newline=True) -> str:
-    #     s = ''
-    #     for card in self.hand:
-    #         if newline:
-    #             s += '\n' + str(card)
-    #         else:
-    #             s += str(card)
-    #     return s
+    def __str__(self, newline=True) -> str:
+        s = ''
+        for card in self.hand:
+            if newline:
+                s += '\n' + str(card)
+            else:
+                s += str(card)
+        return s
     
     def draw_card(self, deck):
         deck = deck.deck
@@ -70,8 +70,8 @@ class Player():
         print(self.__str__(newline))
         print(self.hand_value)
 
-    def show_hand_value(self):
-        print(self.hand_value)
+    # def show_hand_value(self):
+    #     print(self.hand_value)
 
     def ask_for_card(self, deck):
         end = 0
@@ -158,18 +158,21 @@ for rank in ranks:
 def main():
     deck = Deck(suits, ranks)
     no_players = 1
-    players = []
+    players: List[Player] = []
+    player_bets = {}
     for _ in range(no_players):
-        player = Player()
-        players.append(player) 
+        players.append(Player()) 
 
     while True:
         print('\nStart of the game')
-        print(players)
         #list_of_ends = [False for player in players]
         for i, player in enumerate(players):
-            print(i, player)
-
+            player_no = i + 1
+            print(f'\n\nPlayer {player_no}')
+            player_bets[player_no] = player.get_bet()
+            for _ in range(2):
+                player.draw_card(deck)
+            player.show_hand()
 
         return 0 
         for ind, player in enumerate(players):
