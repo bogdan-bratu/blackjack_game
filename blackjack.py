@@ -33,24 +33,29 @@ class Player():
         self.hand = []
         self.hand_value = 0
         self.has_ace = False
-        self.ended_game = False
-        self.blackjack = 0
-        self.busted = 0
+        self.blackjack, self.busted = 0, 0
         self.needs_card = True
-        if isinstance(self, Player):
-            self.chips = 1000
+        self.chips = 1000
 
     def clear_hand(self):
         self.hand = []
         self.hand_value = 0
         self.has_ace = False
-        self.ended_game = False
+        self.blackjack, self.busted = 0, 0
 
     def get_bet(self):
-        if isinstance(self, Player):
+        end = 0
+        if self.chips == 0:
+            print("Player has 0 chips. You're out of the game")
+            end = 1
+            return end
+        while True:
             self.bet = int(input(f'You have {self.chips} chips. Choose your bet: '))
-        else:
-            self.bet = None
+            if self.bet > self.chips:
+                print('Bet too high')
+                continue
+            break
+        return end
 
     def __str__(self, card) -> str:
         return card.__str__()
@@ -85,8 +90,8 @@ class Player():
                 response = input("\nDo you want a card? Press 'y' or 'n': ")
                 if response == 'y':
                     self.draw_card(deck)
-                    self.show_hand()
                     self.adjust_for_ace()
+                    self.show_hand()
                     self.check_hand()
                     if self.blackjack or self.busted:
                         break
@@ -110,7 +115,7 @@ class Player():
         return self
 
     def show_chips(self):
-        print(f'Player has {self.chips}')
+        print(f'Player has {self.chips} chips')
 
 
 class Dealer(Player):
@@ -122,17 +127,6 @@ class Dealer(Player):
     
 
 def compare_hands(player : Player, dealer : Dealer, initial_check=True):
-    # end = 0
-    # if initial_check:
-    #     if player.blackjack or player.busted:
-    #         #print('Plyer has blackjack!')
-    #         #player.chips += player.bet
-    #         end = 1
-    #     elif player.busted:
-    #         #print('Player busted')
-    #         #player.chips -= player.bet
-    #         end = 1
-    # else:
     if player.blackjack and dealer.blackjack:
         print('It\'s a tie!')
     elif player.blackjack:
@@ -171,9 +165,8 @@ for rank in ranks:
 
 def main():
     deck = Deck(suits, ranks)
-    no_players = 1
+    no_players = 2
     players: List[Player] = []
-    player_bets = {}
     for _ in range(no_players):
         players.append(Player()) 
 
@@ -182,7 +175,9 @@ def main():
         for i, player in enumerate(players):
             player_no = i + 1
             print(f'\n\nPlayer {player_no}')
-            player_bets[player_no] = player.get_bet()
+            end = player.get_bet()
+            if end:
+                continue
             player.draw_cards(deck)
             player.show_hand()
             player.check_hand()
@@ -201,29 +196,29 @@ def main():
             
             player.ask_for_card(deck)
 
-            print(f'\n\nDealer')
+        print(f'\n\nDealer')
+        dealer.show_hand(hidden=False)
+        while dealer.get_hand_value() < 17:
+            print('\nDealer draws')
+            dealer.draw_card(deck)
             dealer.show_hand(hidden=False)
-            while dealer.get_hand_value() < 17:
-                print('\nDealer draws')
-                dealer.draw_card(deck)
-                dealer.show_hand(hidden=False)
-                dealer.adjust_for_ace()
-                dealer.check_hand()
+            dealer.adjust_for_ace()
+            dealer.check_hand()
 
-            for ind, player in enumerate(players):
-                print(f'\nPlayer {ind+1}')
-                player.show_hand()
-                compare_hands(player, dealer)
-                player.show_chips()
-            print("\nEnd of the game")
+        for ind, player in enumerate(players):
+            print(f'\nPlayer {ind+1}')
+            player.show_hand()
+            compare_hands(player, dealer)
+            player.show_chips()
+        print("\nEnd of the game")
 
-            response = input('\nDo you want to play another game? y or n: ')
-            if response == 'y':
-                for player in players:
-                    player.clear_hand()
-                continue
-            elif response == 'n':
-                break
+        response = input('\nDo you want to play another game? y or n: ')
+        if response == 'y':
+            for player in players:
+                player.clear_hand()
+            continue
+        elif response == 'n':
+            break
 
 
 
