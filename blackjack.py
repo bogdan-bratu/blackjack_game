@@ -39,6 +39,7 @@ class Player:
         self.blackjack, self.busted = 0, 0
         self.needs_card = True
         self.chips = 1000
+        self.isOut = False
 
     def clear_hand(self):
         self.hand = []
@@ -120,6 +121,12 @@ class Player:
     def show_chips(self):
         print(f'Player has {self.chips} chips')
 
+    def out(self):
+        self.isOut = True
+
+    def is_out(self):
+        return self.isOut
+
 
 class Dealer(Player):
     def show_hand(self, hidden):
@@ -128,6 +135,7 @@ class Dealer(Player):
     def get_hand_value(self):
         return self.hand_value
 
+#-----------------
 def compare_hands(player : Player, dealer : Dealer, initial_check=True):
     if player.blackjack and dealer.blackjack:
         print("It's a tie!")
@@ -154,6 +162,8 @@ def compare_hands(player : Player, dealer : Dealer, initial_check=True):
     return 0
 
 
+
+
 suits = ["Hearts", "Spades", "Diamonds", "Clubs"]
 ranks = list(range(2, 11)) + ["Jack", "Queen", "King", "Ace"]
 values = dict()
@@ -175,15 +185,21 @@ def main():
 
     while True:
         print("\nStart of the game")
+        list_of_ends = []
         for i, player in enumerate(players):
             player_no = i + 1
             print(f'\n\nPlayer {player_no}')
             end = player.get_bet()
             if end:
+                player.out()
+                list_of_ends.append(end)
                 continue
             player.draw_cards(deck)
             player.show_hand()
             player.check_hand()
+        if len(list_of_ends) == len(players):
+            print('All players have ran out of chips!')
+            break
 
         dealer = Dealer()
         print(f"\n\nDealer")
@@ -192,12 +208,12 @@ def main():
         dealer.check_hand()
 
         for i, player in enumerate(players):
-            player_no = i + 1
-            print(f"\n\nPlayer {player_no}")
-            player.show_hand()
-            player.check_hand()
-
-            player.ask_for_card(deck)
+            if not player.is_out():
+                player_no = i + 1
+                print(f"\n\nPlayer {player_no}")
+                player.show_hand()
+                player.check_hand()
+                player.ask_for_card(deck)
 
         print(f'\n\nDealer')
         dealer.show_hand(hidden=False)
@@ -209,10 +225,11 @@ def main():
             dealer.check_hand()
 
         for ind, player in enumerate(players):
-            print(f'\nPlayer {ind+1}')
-            player.show_hand()
-            compare_hands(player, dealer)
-            player.show_chips()
+            if not player.is_out():
+                print(f'\nPlayer {ind+1}')
+                player.show_hand()
+                compare_hands(player, dealer)
+                player.show_chips()
         print("\nEnd of the game")
 
         response = input('\nDo you want to play another game? y or n: ')
