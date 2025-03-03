@@ -1,5 +1,6 @@
 import random
 from typing import List
+import csv
 
 
 class Card:
@@ -32,7 +33,7 @@ class Deck:
 
 
 class Player:
-    def __init__(self) -> None:
+    def __init__(self, firstName, lastName, age, country, chips) -> None:
         self.hand = []
         self.hand_value = 0
         self.has_ace = False
@@ -40,6 +41,12 @@ class Player:
         self.needs_card = True
         self.chips = 1000
         self.isOut = False
+        #
+        self.firstName = firstName
+        self.lastName = lastName
+        self.age = age
+        self.country = country
+        self.chips = chips
 
     def clear_hand(self):
         self.hand = []
@@ -61,8 +68,11 @@ class Player:
             break
         return end
 
-    def __str__(self, card) -> str:
-        return card.__str__()
+    # def __str__(self, card) -> str:
+    #     return card.__str__()
+
+    def __str__(self):
+        return f'Player is {self.firstName} {self.lastName}, aged {self.age}, from {self.country}, having {self.chips} chips.'
 
     def show_hand(self, newline=True, hidden=False):
         hand = self.hand
@@ -175,17 +185,36 @@ for rank in ranks:
     else:
         values[rank] = 10
 
+def read_players():
+    with open('players.csv') as csvfile:
+        spamreader = csv.DictReader(csvfile, delimiter=',')
+        players: List[Player] = []
+        for row in spamreader:
+            print(row)
+            firstName = row['FirstName']
+            lastName = row['LastName']
+            age = int(row['Age'])
+            country = row['Country']
+            chips = int(row['Chips'])
+            player = Player(firstName, lastName, age, country, chips)
+            players.append(player)
+        return players
+
+def print_players(players:List[Player]):
+    for player in players:
+        print(player)
 
 def main():
     deck = Deck(suits, ranks)
-    no_players = 2
-    players: List[Player] = []
-    for _ in range(no_players):
-        players.append(Player())
-
+    players = read_players()
+    print_players(players)
     while True:
         print("\nStart of the game")
-        list_of_ends = []
+        #list_of_ends = []
+        for player, player_ind in zip(players, list(range(1, len(players)))):
+            print(f'\n\nPlayer {player_ind}')
+            
+
         for i, player in enumerate(players):
             player_no = i + 1
             print(f'\n\nPlayer {player_no}')
@@ -241,5 +270,7 @@ def main():
             break
 
 
+
 if __name__ == "__main__":
     main()
+    #read_players()
