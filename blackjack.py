@@ -61,9 +61,9 @@ class Player:
             end = 1
             return end
         while True:
-            self.bet = int(input(f'You have {self.chips} chips. Choose your bet: '))
+            self.bet = int(input(f"You have {self.chips} chips. Choose your bet: "))
             if self.bet > self.chips:
-                print('Bet too high')
+                print("Bet too high")
                 continue
             break
         return end
@@ -72,7 +72,7 @@ class Player:
     #     return card.__str__()
 
     def __str__(self):
-        return f'Player is {self.firstName} {self.lastName}, aged {self.age}, from {self.country}, having {self.chips} chips.'
+        return f"Player is {self.firstName} {self.lastName}, aged {self.age}, from {self.country}, having {self.chips} chips."
 
     def show_hand(self, newline=True, hidden=False):
         hand = self.hand
@@ -82,7 +82,7 @@ class Player:
             print("Hidden card")
             hand = [self.hand[1]]
         for card in hand:
-            print(self.__str__(card))
+            print(card)
         if not hidden:
             print(self.hand_value)
 
@@ -129,7 +129,7 @@ class Player:
         return self
 
     def show_chips(self):
-        print(f'Player has {self.chips} chips')
+        print(f"Player has {self.chips} chips")
 
     def out(self):
         self.isOut = True
@@ -139,14 +139,20 @@ class Player:
 
 
 class Dealer(Player):
+    def __init__(
+        self, firstName=None, lastName=None, age=None, country=None, chips=None
+    ):
+        super().__init__(firstName, lastName, age, country, chips)
+
     def show_hand(self, hidden):
         return super().show_hand(hidden=hidden)
 
     def get_hand_value(self):
         return self.hand_value
 
-#-----------------
-def compare_hands(player : Player, dealer : Dealer, initial_check=True):
+
+# -----------------
+def compare_hands(player: Player, dealer: Dealer, initial_check=True):
     if player.blackjack and dealer.blackjack:
         print("It's a tie!")
     elif player.blackjack:
@@ -172,8 +178,6 @@ def compare_hands(player : Player, dealer : Dealer, initial_check=True):
     return 0
 
 
-
-
 suits = ["Hearts", "Spades", "Diamonds", "Clubs"]
 ranks = list(range(2, 11)) + ["Jack", "Queen", "King", "Ace"]
 values = dict()
@@ -185,24 +189,27 @@ for rank in ranks:
     else:
         values[rank] = 10
 
+
 def read_players():
-    with open('players.csv') as csvfile:
-        spamreader = csv.DictReader(csvfile, delimiter=',')
+    with open("players.csv") as csvfile:
+        spamreader = csv.DictReader(csvfile, delimiter=",")
         players: List[Player] = []
         for row in spamreader:
-            print(row)
-            firstName = row['FirstName']
-            lastName = row['LastName']
-            age = int(row['Age'])
-            country = row['Country']
-            chips = int(row['Chips'])
+            # print(row)
+            firstName = row["FirstName"]
+            lastName = row["LastName"]
+            age = int(row["Age"])
+            country = row["Country"]
+            chips = int(row["Chips"])
             player = Player(firstName, lastName, age, country, chips)
             players.append(player)
         return players
 
-def print_players(players:List[Player]):
+
+def print_players(players: List[Player]):
     for player in players:
         print(player)
+
 
 def main():
     deck = Deck(suits, ranks)
@@ -210,14 +217,14 @@ def main():
     print_players(players)
     while True:
         print("\nStart of the game")
-        #list_of_ends = []
-        for player, player_ind in zip(players, list(range(1, len(players)))):
-            print(f'\n\nPlayer {player_ind}')
-            
+        list_of_ends = []
+        for player, player_ind in zip(players, list(range(1, len(players) + 1))):
+            print(f"\n\nPlayer {player_ind}")
 
-        for i, player in enumerate(players):
-            player_no = i + 1
-            print(f'\n\nPlayer {player_no}')
+            # return 0
+            # for i, player in enumerate(players):
+            #     player_no = i + 1
+            #     print(f'\n\nPlayer {player_no}')
             end = player.get_bet()
             if end:
                 player.out()
@@ -227,7 +234,7 @@ def main():
             player.show_hand()
             player.check_hand()
         if len(list_of_ends) == len(players):
-            print('All players have ran out of chips!')
+            print("All players have ran out of chips!")
             break
 
         dealer = Dealer()
@@ -244,10 +251,10 @@ def main():
                 player.check_hand()
                 player.ask_for_card(deck)
 
-        print(f'\n\nDealer')
+        print(f"\n\nDealer")
         dealer.show_hand(hidden=False)
         while dealer.get_hand_value() < 17:
-            print('\nDealer draws')
+            print("\nDealer draws")
             dealer.draw_card(deck)
             dealer.show_hand(hidden=False)
             dealer.adjust_for_ace()
@@ -255,22 +262,21 @@ def main():
 
         for ind, player in enumerate(players):
             if not player.is_out():
-                print(f'\nPlayer {ind+1}')
+                print(f"\nPlayer {ind+1}")
                 player.show_hand()
                 compare_hands(player, dealer)
                 player.show_chips()
         print("\nEnd of the game")
 
-        response = input('\nDo you want to play another game? y or n: ')
-        if response == 'y':
+        response = input("\nDo you want to play another game? y or n: ")
+        if response == "y":
             for player in players:
                 player.clear_hand()
             continue
-        elif response == 'n':
+        elif response == "n":
             break
-
 
 
 if __name__ == "__main__":
     main()
-    #read_players()
+    # read_players()
